@@ -92,8 +92,41 @@
     </ul>
 
     <div class="cta">
-      <a href="https://github.com/johnsonvu911/WebATFramework" target="_blank">🔗 View GitHub Repository</a>
+      <a id="githubLink" href="https://github.com/johnsonvu911/WebATFramework" target="_blank">🔗 View GitHub Repository</a>
     </div>
+    <script>
+    const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyEE_Ub1EPu-GREeCmWM_Tmw_fE5bGwx3NbqxB31f0A9kuegP39c1mg5OjwjlVkGS_M/exec'; // Google Apps Script URL
+  
+    async function logClick() {
+      try {
+        // 1. Get IP from Cloudflare trace
+        const traceText = await fetch('https://www.cloudflare.com/cdn-cgi/trace').then(r => r.text());
+        const ip = traceText.split('\n').find(line => line.startsWith('ip='))?.split('=')[1]?.trim();
+  
+        // 2. Get location from ipapi.co
+        const locData = await fetch(`https://ipapi.co/${ip}/json/`).then(r => r.json());
+  
+        // 3. Send log to Google Sheets
+        fetch(LOG_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            link: 'github',
+            ip: ip || 'unknown',
+            city: locData.city || 'N/A',
+            region: locData.region || 'N/A',
+            country: locData.country || 'N/A',
+            userAgent: navigator.userAgent,
+            referrer: document.referrer || 'direct'
+          })
+        });
+      } catch (err) {
+        console.error('Logging failed:', err);
+      }
+    }
+  
+    document.getElementById('githubLink').addEventListener('click', logClick);
+  </script>
   </main>
 
   <footer>

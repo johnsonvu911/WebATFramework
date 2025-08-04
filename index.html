@@ -95,39 +95,35 @@
       <a id="githubLink" href="https://github.com/johnsonvu911/WebATFramework" target="_blank">🔗 View GitHub Repository</a>
     </div>
     <script>
-    const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzkcU93q4anpxUtp2HRhjnGZVVgh-U5PcodG7kfCoPZkbjAa7BNG9M1PxiWsTNm8PDa/exec'; // Google Apps Script URL
-  
-    async function logClick() {
-      try {
-        // 1. Get IP from Cloudflare trace
-        const traceText = await fetch('https://www.cloudflare.com/cdn-cgi/trace').then(r => r.text());
-        const ip = traceText.split('\n').find(line => line.startsWith('ip='))?.split('=')[1]?.trim();
-  
-        // 2. Get location from ipapi.co
-        const locData = await fetch(`https://ipapi.co/${ip}/json/`).then(r => r.json());
-        // Define form body
-        const form = new URLSearchParams();
-        form.append('link', 'github');
-        form.append('ip', ip || 'unknown');
-        form.append('city', locData.city || 'N/A');
-        form.append('region', locData.region || 'N/A');
-        form.append('country', locData.country || 'N/A');
-        form.append('userAgent', navigator.userAgent);
-        form.append('referrer', document.referrer || 'direct');
+  const FORM_URL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLScZcGd-jnZ__yQVPd-rxqQGL1_TcwusdrjUJ6UZs82ebdNWgA/formResponse";
 
-        // 3. Send log to Google Sheets
-        fetch(LOG_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: form
-        });
-      } catch (err) {
-        console.error('Logging failed:', err);
-      }
+  async function logClick() {
+    try {
+      const traceText = await fetch('https://www.cloudflare.com/cdn-cgi/trace').then(r => r.text());
+      const ip = traceText.split('\n').find(l => l.startsWith('ip='))?.split('=')[1]?.trim();
+
+      const now = new Date().toISOString();
+
+      const form = new URLSearchParams();
+      form.append('entry.1456666102', 'github'); // link
+      form.append('entry.1739326173', now); // timestamp
+      form.append('entry.980889110', ip); // ip
+      form.append('entry.1721037471', 'N/A'); // location (optional)
+      form.append('entry.195366759', navigator.userAgent); // userAgent
+      form.append('entry.1386811845', document.referrer || 'direct'); // referrer
+
+      fetch(FORM_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: form
+      });
+    } catch (err) {
+      console.error('Logging failed:', err);
     }
-  
-    document.getElementById('githubLink').addEventListener('click', logClick);
-  </script>
+  }
+
+  document.getElementById('githubLink').addEventListener('click', logClick);
+</script>
   </main>
 
   <footer>

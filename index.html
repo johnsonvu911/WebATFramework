@@ -109,7 +109,7 @@
         // 3. Send log to Google Sheets
         fetch(LOG_ENDPOINT, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: JSON.stringify({
             link: 'github',
             ip: ip || 'unknown',
